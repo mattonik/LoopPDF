@@ -54,7 +54,7 @@
     // data-automation-type="Tablero"
     let tables = [];
     content.querySelectorAll('[data-automation-type="Tablero"]').forEach((tableContainer) => {
-        console.log("table", tableContainer);
+        // console.log("table", tableContainer);
         // #tableWrapper-
         let table = tableContainer.querySelector('[id*="tableWrapper-"');
         // table.querySelectorAll('[contenteditable="true"]').forEach((c) => { c.remove(); });
@@ -180,7 +180,7 @@
     _doc = replaceIframesWithUrls(_doc);
     _doc = getTablesReady(_doc);
 
-    console.log('_doc', _doc)
+    // console.log('_doc', _doc)
 
     _title.insertAdjacentText("beforeend", title);
     let _titleH1 = document.createElement("h1");
@@ -230,12 +230,12 @@
     const viewportHeight = scrollableElement.clientHeight;
     let lastScrollTop = -1;
 
-    console.log(
-      "Starting scrollAndCapture",
-      scrollHeight,
-      viewportHeight,
-      lastScrollTop
-    );
+    // console.log(
+    //   "Starting scrollAndCapture",
+    //   scrollHeight,
+    //   viewportHeight,
+    //   lastScrollTop
+    // );
 
     scrollableElement.scrollTop = 0;
 
@@ -313,13 +313,13 @@
     let title = document.title;
     let processedContent = await getContentReady(capturedHTML, title);
     let newWindow = window.open(" ", "_blank");
-    console.log('newWindow', newWindow);
+    // console.log('newWindow', newWindow);
     newWindow.document.open();
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     newWindow.document.write(processedContent.innerHTML);
     newWindow.document.close();
-    console.log('newWindow document write', )
+    // console.log('newWindow document write', )
 
     newWindow.focus();
 
@@ -340,7 +340,7 @@
       request.action === "printContent"
     ) {
       captureAndDisplayContent().then(() => {
-        console.log('captureAndDisplay done');
+        // console.log('captureAndDisplay done');
         sendResponse({ status: "printDone" });
       });
       return true; // Indicates that you wish to send a response asynchronously
