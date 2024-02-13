@@ -97,7 +97,8 @@
     // Apply any additional styling necessary for print layout
     let style = document.createElement("style");
     style.innerHTML = `
-      body { margin: 20px; }
+      body { margin: 20px; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+      h1 { font-size: 32px; }
       a:link, a:active, a:link:hover, a:visited { text-decoration: none; color: inherit; }
       a:link:after { content: "(" attr(href) ")"; text-decoration: underline; display: inline-block; margin: 0 4px;}
       div[role="application"] { display: block !important; height: 100% !important; }
@@ -144,12 +145,15 @@
         background: #f9f9f9;
       }
     `;
-
+  
     _doc = replaceIframesWithUrls(_doc);
 
     _title.insertAdjacentText('beforeend', title);
+    const _titleH1 = document.createElement('h1');
+    _titleH1.innerText = title;
     _head.appendChild(_title);
     _head.appendChild(style);
+    _body.appendChild(_titleH1);
     _body.appendChild(_doc);
     _html.appendChild(_head);
     _html.appendChild(_body);
@@ -210,12 +214,12 @@
       lastScrollTop = scrollableElement.scrollTop;
       scrollableElement.scrollTop += viewportHeight;
       // Wait for any dynamic content to load
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
     // Ensure we capture the bottom of the content
     scrollableElement.scrollTop = scrollableElement.scrollHeight;
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
   // Setup IntersectionObserver to observe .scriptor-pageFrameContainer .scriptor-pageFrame elements
@@ -239,8 +243,8 @@
             element !== document.body &&
             element.innerHTML === ""
           ) {
-            console.log("wait for innerHTML to have content", element);
-            await new Promise((resolve) => setTimeout(resolve, 300));
+            // console.log("wait for innerHTML to have content", element);
+            await new Promise((resolve) => setTimeout(resolve, 600));
           }
           const htmlContent = element.innerHTML;
           if (!allContent.includes(htmlContent)) {
