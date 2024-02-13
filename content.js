@@ -296,12 +296,12 @@
         // All images are loaded, proceed with printing
         newWindow.print();
         newWindow.close();
-      })
-      .catch((error) => {
+    })
+    .catch((error) => {
         console.error(
-          "Error loading some images, proceeding with print anyway.",
-          error
-        );
+            "Error loading some images, proceeding with print anyway.",
+            error
+            );
         newWindow.print(); // Optionally, proceed with printing even if some images failed to load
         newWindow.close();
       });
