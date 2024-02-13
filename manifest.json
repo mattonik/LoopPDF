@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Loop Printer",
+  "name": "Loop Printer BETA",
   "version": "0.1",
-  "description": "Print a Microsoft Loop page!",
+  "description": "THIS EXTENSION IS FOR BETA TESTING - Print a Microsoft Loop page!",
   "permissions": ["activeTab", "tabs", "scripting"],
   "action": {
     "default_popup": "popup.html",
