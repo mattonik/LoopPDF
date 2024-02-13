@@ -1,5 +1,5 @@
 (async () => {
-  const allContent = [];
+  let allContent = [];
 
   function removeExternalContent() {
     document
@@ -7,6 +7,10 @@
       .forEach((element) => {
         element.remove();
       });
+  }
+
+  function cleanup() {
+    allContent = [];
   }
 
   function isScrollable(element) {
@@ -38,14 +42,42 @@
         placeholder.style.backgroundColor = "#f9f9f9";
         placeholder.style.borderRadius = "8px";
 
-        // Optionally, add additional styles to the placeholder to make it visually distinct
-
         iframe.parentNode.replaceChild(placeholder, iframe);
       } else {
         iframe.parentNode.remove();
       }
     });
     return container;
+  }
+
+  function getTablesReady(content) {
+    // data-automation-type="Tablero"
+    let tables = [];
+    content.querySelectorAll('[data-automation-type="Tablero"]').forEach((tableContainer) => {
+        console.log("table", tableContainer);
+        // #tableWrapper-
+        let table = tableContainer.querySelector('[id*="tableWrapper-"');
+        // table.querySelectorAll('[contenteditable="true"]').forEach((c) => { c.remove(); });
+        let numbers = table.querySelector('[data-automation-type="row-grabber-table"]');
+        let content = table.querySelector('[role="table"]');
+        content
+          .querySelector("thead")
+          .querySelectorAll("svg")
+          .forEach((e) => {
+            e.remove();
+          });
+        let alignedTables = document.createElement('div');
+        alignedTables.style.display = "flex";
+        alignedTables.style.flexDirection = "row";
+        alignedTables.appendChild(numbers);
+        alignedTables.appendChild(content);
+
+        // console.log("to", alignedTables);
+        // table.parentNode.remove();
+        tableContainer.parentNode.replaceChild(alignedTables, tableContainer);
+    });
+    // console.log('getTablesReady done', content);
+    return content;
   }
 
   function waitForImagesToLoad(images) {
@@ -67,22 +99,21 @@
   }
 
   async function getContentReady(content, title) {
-    const _html = document.createElement("html");
-    const _head = document.createElement("head");
-    const _body = document.createElement("body");
-    const _title = document.createElement("title");
+    let _html = document.createElement("html");
+    let _head = document.createElement("head");
+    let _body = document.createElement("body");
+    let _title = document.createElement("title");
 
     let _doc = document.createElement("div");
-    
+
     _doc.insertAdjacentHTML("beforeend", content);
-    // console.log("getContentReady", content, _doc);
     _doc
       .querySelectorAll(
-        "header, #Sidebar, #loopApp-menu9, aside, editor-card, .fui-Tooltip__content, data-tabster-dummy, div[role='toolbar'], #headerContainer button, .scriptor-block-ui-button, .scriptor-highlightWrapper, .conversa-comment, .conversa-focus-wrapper"
+        "header, #Sidebar, #loopApp-menu9, aside, editor-card, .fui-Tooltip__content, data-tabster-dummy, div[role='toolbar'], #headerContainer button, .scriptor-block-ui-button, .scriptor-highlightWrapper, .conversa-comment, .conversa-focus-wrapper, [role='button']"
       )
       .forEach((e) => {
         // e.style.display = "none"
-        console.log("remove", e);
+        // console.log("remove", e);
         e.remove();
       });
 
@@ -145,15 +176,20 @@
         background: #f9f9f9;
       }
     `;
-  
-    _doc = replaceIframesWithUrls(_doc);
 
-    _title.insertAdjacentText('beforeend', title);
-    const _titleH1 = document.createElement('h1');
+    _doc = replaceIframesWithUrls(_doc);
+    _doc = getTablesReady(_doc);
+
+    console.log('_doc', _doc)
+
+    _title.insertAdjacentText("beforeend", title);
+    let _titleH1 = document.createElement("h1");
     _titleH1.innerText = title;
+
     _head.appendChild(_title);
     _head.appendChild(style);
     _body.appendChild(_titleH1);
+
     _body.appendChild(_doc);
     _html.appendChild(_head);
     _html.appendChild(_body);
@@ -167,16 +203,13 @@
     document
       .querySelectorAll(".scriptor-canvas .scriptor-pageContainer")
       .forEach((pc) => {
-        console.log("pageContainer", pc);
+        // console.log("pageContainer", pc);
 
         pc.querySelectorAll(".scriptor-pageFrameContainer").forEach((e) => {
-        //   console.log("e style", e.offsetHeight);
           totalHeight += e.offsetHeight;
-        //   console.log("New total Height", totalHeight);
         });
       });
 
-    // console.log("Total Height", totalHeight);
     return totalHeight;
   }
 
@@ -195,7 +228,6 @@
 
     // const scrollHeight = scrollableElement.scrollHeight;
     const viewportHeight = scrollableElement.clientHeight;
-    // const viewportHeight = 200;
     let lastScrollTop = -1;
 
     console.log(
@@ -214,12 +246,12 @@
       lastScrollTop = scrollableElement.scrollTop;
       scrollableElement.scrollTop += viewportHeight;
       // Wait for any dynamic content to load
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     // Ensure we capture the bottom of the content
     scrollableElement.scrollTop = scrollableElement.scrollHeight;
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   // Setup IntersectionObserver to observe .scriptor-pageFrameContainer .scriptor-pageFrame elements
@@ -236,8 +268,8 @@
         // console.log("observe entry", entry);
         if (entry.isIntersecting) {
           let element = entry.target;
-        //   console.log("isIntersecting", element, entry);
-        //   console.log("innerHTML", element.innerHTML);
+          //   console.log("isIntersecting", element, entry);
+          //   console.log("innerHTML", element.innerHTML);
           while (
             element &&
             element !== document.body &&
@@ -274,38 +306,30 @@
   // Main function to orchestrate the scrolling and content capturing
   async function captureAndDisplayContent() {
     setupObserver();
-    // const scrollableElements = findScrollableElements();
-    // console.log("Scrollable elements:", scrollableElements);
-
     await scrollAndCapture();
 
-    // console.log("capture", allContent);
-
     // Create a new tab with the captured content
-    const capturedHTML = allContent.join("");
-    const title = document.title;
-    const processedContent = await getContentReady(capturedHTML, title);
-    // console.log("Processed Content", processedContent);
-    const newWindow = window.open(" ", "_blank");
-    newWindow.document.write(processedContent.innerHTML);
-    newWindow.focus();
-    // await new Promise((resolve) => setTimeout(resolve, 100));
-    const images = newWindow.document.querySelectorAll('img');
-    waitForImagesToLoad(images)
-      .then(() => {
-        // All images are loaded, proceed with printing
-        newWindow.print();
-        newWindow.close();
-    })
-    .catch((error) => {
-        console.error(
-            "Error loading some images, proceeding with print anyway.",
-            error
-            );
-        newWindow.print(); // Optionally, proceed with printing even if some images failed to load
-        newWindow.close();
-      });
+    let capturedHTML = allContent.join("");
+    let title = document.title;
+    let processedContent = await getContentReady(capturedHTML, title);
+    let newWindow = window.open(" ", "_blank");
+    console.log('newWindow', newWindow);
+    newWindow.document.open();
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
+    newWindow.document.write(processedContent.innerHTML);
+    newWindow.document.close();
+    console.log('newWindow document write', )
+
+    newWindow.focus();
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    newWindow.print();
+    newWindow.close();
+    cleanup();
+
+    // chrome.runtime.sendMessage({ status: "printDone" });
     return true;
   }
 
@@ -315,9 +339,9 @@
       request.action === "captureAndStitch" ||
       request.action === "printContent"
     ) {
-    //   removeExternalContent();
       captureAndDisplayContent().then(() => {
-        sendResponse({ status: "Completed" });
+        console.log('captureAndDisplay done');
+        sendResponse({ status: "printDone" });
       });
       return true; // Indicates that you wish to send a response asynchronously
     }

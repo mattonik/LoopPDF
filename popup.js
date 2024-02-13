@@ -1,21 +1,28 @@
-document.getElementById("printButton").addEventListener("click", function () {
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    tabId = tabs[0].id;
+const printButton = document.getElementById("printButton");
 
-    chrome.scripting.executeScript(
-      {
-        target: { tabId: tabId },
-        files: ["content.js"],
-      },
-      () => {
-        // After injecting, send a message
-        chrome.tabs.sendMessage(tabId, {
-          action: "printContent",
-          tabId: tabId,
-        });
-      }
-    );
-
-    // chrome.tabs.sendMessage(tabId, { action: "printContent", tabId: tabId });
+if (!window.buttonClicked) {
+  window.buttonClicked = true;
+  printButton.addEventListener("click", function (event) {
+    printButton.disabled = true;
+    (async () => {
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+      });
+      const response = await chrome.tabs.sendMessage(tab.id, {
+        action: "printContent"
+      });
+      // do something with response here, not outside the function
+      console.log(response);
+    })();
+    event.stopPropagation;
   });
+}
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.status === "printDone") {
+    console.log('print done');
+    window.buttonClicked = false;
+    printButton.disabled = false;
+  }
 });
