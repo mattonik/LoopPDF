@@ -1,15 +1,15 @@
 {
   "manifest_version": 3,
-  "name": "Print Page to PDF",
-  "version": "1.0",
-  "description": "Removes navigational elements and prints the page content to PDF.",
+  "name": "Loop Printer",
+  "version": "0.1",
+  "description": "Print a Microsoft Loop page!",
   "permissions": ["activeTab", "tabs", "scripting"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icon.png",
-      "48": "icon.png",
-      "128": "icon.png"
+      "16": "icon-new.png",
+      "48": "icon-new.png",
+      "128": "icon-new.png"
     }
   },
   "content_scripts": [
@@ -19,8 +19,8 @@
     }
   ],
   "icons": {
-    "16": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
+    "16": "icon-new.png",
+    "48": "icon-new.png",
+    "128": "icon-new.png"
   }
 }
